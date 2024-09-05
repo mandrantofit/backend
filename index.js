@@ -44,6 +44,49 @@ app.post('/login', (req, res) => {
   
 });
 
+
+// Route pour créer un nouveau matériel
+app.post('/materiel', (req, res) => {
+  const { modele, marque, numero_serie, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison } = req.body;
+
+  // Valider les données d'entrée
+  if (!modele || !marque || !numero_serie || !ID_categorie || !ID_etat || !ID_fournisseur) {
+    return res.status(400).json({ error: 'Veuillez fournir toutes les informations requises' });
+  }
+
+  // Vérifier si le numéro de série existe déjà
+  const sqlCheckNumeroSerie = 'SELECT * FROM materiel WHERE numero_serie = ?';
+  pool.query(sqlCheckNumeroSerie, [numero_serie], (error, results) => {
+    if (error) {
+      console.error('Erreur lors de la vérification du numéro de série :', error);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+
+    if (results.length > 0) {
+      // Le numéro de série existe déjà
+      return res.status(400).json({ error: 'Le numéro de série existe déjà.' });
+    }
+
+    // Insérer le nouveau matériel dans la table `materiel`
+    const sqlInsertMateriel = `
+      INSERT INTO materiel (modele, marque, numero_serie, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    pool.query(
+      sqlInsertMateriel,
+      [modele, marque, numero_serie, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison],
+      (error, results) => {
+        if (error) {
+          console.error('Erreur lors de l\'insertion du matériel :', error);
+          return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(201).json({ message: 'Matériel ajouté avec succès', materielId: results.insertId });
+      }
+    );
+  });
+});
+
+
 // Start the server
 app.listen(8000, () => {
   console.log('Server started on port 8000');
