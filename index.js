@@ -44,7 +44,6 @@ app.post('/login', (req, res) => {
   
 });
 
-
 // Route pour créer un nouveau matériel
 app.post('/materiel', (req, res) => {
   const { modele, marque, numero_serie, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison } = req.body;
@@ -83,6 +82,55 @@ app.post('/materiel', (req, res) => {
         res.status(201).json({ message: 'Matériel ajouté avec succès', materielId: results.insertId });
       }
     );
+  });
+});
+
+app.get('/materiel', (req, res) => {
+  const sqlGetMateriel = `
+    SELECT 
+      materiel.ID_materiel,
+      materiel.modele,
+      materiel.marque,
+      materiel.numero_serie,
+      categorie.type AS type,
+      etat.description AS etat,
+      fournisseur.nom AS fournisseur,
+      materiel.bon_de_commande,
+      materiel.config,
+      materiel.bon_de_livraison,
+      materiel.attribution
+    FROM materiel
+    LEFT JOIN categorie ON materiel.ID_categorie = categorie.ID_categorie
+    LEFT JOIN etat ON materiel.ID_etat = etat.ID_etat
+    LEFT JOIN fournisseur ON materiel.ID_fournisseur = fournisseur.ID_fournisseur
+  `;
+  
+  pool.query(sqlGetMateriel, (error, results) => {
+    if (error) {
+      console.error('Erreur lors de la récupération des matériels :', error);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+
+app.get('/materiel/inventaire', (req, res) => {
+  const sqlGetMaterielNonAttribue = `
+    SELECT modele, COUNT(*) AS non_attribue
+    FROM materiel
+    WHERE attribution = 'non'
+    GROUP BY modele
+  `;
+  
+  pool.query(sqlGetMaterielNonAttribue, (error, results) => {
+    if (error) {
+      console.error('Erreur lors de la récupération des matériels non attribués :', error);
+      return res.status(500).json({ error: 'Erreur serveur' });
+    }
+
+    res.status(200).json(results);
   });
 });
 
