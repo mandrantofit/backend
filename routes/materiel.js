@@ -121,11 +121,44 @@ router.get('/', (req, res) => {
     });
 });
 
+router.get('/non_attribue', (req, res) => {
+    const sqlGetMateriel = `
+      SELECT 
+    materiel.ID_materiel,
+    materiel.modele,
+    materiel.marque,
+    materiel.numero_serie,
+    materiel.numero_inventaire,
+    categorie.type AS type,
+    etat.description AS etat,
+    fournisseur.nom AS fournisseur,
+    materiel.bon_de_commande,
+    materiel.config,
+    materiel.bon_de_livraison,
+    materiel.attribution
+FROM materiel
+LEFT JOIN categorie ON materiel.ID_categorie = categorie.ID_categorie
+LEFT JOIN etat ON materiel.ID_etat = etat.ID_etat
+LEFT JOIN fournisseur ON materiel.ID_fournisseur = fournisseur.ID_fournisseur
+WHERE materiel.attribution = 'non';
+
+    `;
+
+    db.query(sqlGetMateriel, (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la récupération des matériels :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+
+        res.status(200).json(results);
+    });
+});
+
 
 
 router.get('/inventaire', (req, res) => {
     const sqlGetMaterielNonAttribue = `
-      SELECT modele, COUNT(*) AS non_attribue
+      SELECT marque,modele, COUNT(*) AS non_attribue
       FROM materiel
       WHERE attribution = 'non'
       GROUP BY modele
