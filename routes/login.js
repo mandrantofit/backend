@@ -27,7 +27,7 @@ router.post('/', (req, res) => {
     });
 });
 router.get('/', (req, res) => {
-    db.query('SELECT * FROM log_user', (error, results) => {
+    db.query('SELECT * FROM log_user WHERE type = "user"', (error, results) => {
         if (error) return res.status(500).json({ error: 'Database error' });
         res.json(results);
     });

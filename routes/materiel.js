@@ -3,8 +3,8 @@ const router = express.Router();
 const db = require('../model/database');
 
 router.post('/', (req, res) => {
-    const { modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison } = req.body;
-    if (!modele || !marque || !numero_serie || !numero_inventaire || !ID_categorie || !ID_etat || !ID_fournisseur) {
+    const { code, modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison } = req.body;
+    if (!code || !modele || !marque || !numero_serie || !numero_inventaire || !ID_categorie || !ID_etat || !ID_fournisseur) {
         return res.status(400).json({ error: 'Veuillez fournir toutes les informations requises' });
     }
     const sqlCheckNumeroSerie = 'SELECT * FROM materiel WHERE numero_serie = ?';
@@ -17,12 +17,12 @@ router.post('/', (req, res) => {
             return res.status(400).json({ error: 'Le numéro de série existe déjà.' });
         }
         const sqlInsertMateriel = `
-        INSERT INTO materiel (modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO materiel (code, modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
         db.query(
             sqlInsertMateriel,
-            [modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison],
+            [code, modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison],
             (error, results) => {
                 if (error) {
                     console.error('Erreur lors de l\'insertion du matériel :', error);
@@ -36,8 +36,8 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-    const { modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison } = req.body;
-    if (!id || !modele || !marque || !numero_serie || !numero_inventaire || !ID_categorie || !ID_etat || !ID_fournisseur) {
+    const { code , modele , marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison } = req.body;
+    if (!id || !code|| !modele || !marque || !numero_serie || !numero_inventaire || !ID_categorie || !ID_etat || !ID_fournisseur) {
         return res.status(400).json({ error: 'Veuillez fournir toutes les informations requises' });
     }
     const sqlCheckNumeroSerie = 'SELECT * FROM materiel WHERE numero_serie = ? AND ID_materiel != ?';
@@ -51,13 +51,13 @@ router.put('/:id', (req, res) => {
         }
         const sqlUpdateMateriel = `
             UPDATE materiel
-            SET modele = ?, marque = ?, numero_serie = ?, numero_inventaire = ?, ID_categorie = ?, ID_etat = ?, ID_fournisseur = ?, bon_de_commande = ?, config = ?, bon_de_livraison = ?
+            SET code = ?, modele = ?, marque = ?, numero_serie = ?, numero_inventaire = ?, ID_categorie = ?, ID_etat = ?, ID_fournisseur = ?, bon_de_commande = ?, config = ?, bon_de_livraison = ?
             WHERE ID_materiel = ?
         `;
 
         db.query(
             sqlUpdateMateriel,
-            [modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison, id],
+            [code, modele, marque, numero_serie, numero_inventaire, ID_categorie, ID_etat, ID_fournisseur, bon_de_commande, config, bon_de_livraison, id],
             (error, results) => {
                 if (error) {
                     console.error('Erreur lors de la mise à jour du matériel :', error);
@@ -94,6 +94,7 @@ router.get('/', (req, res) => {
     const sqlGetMateriel = `
       SELECT 
         materiel.ID_materiel,
+        materiel.code,
         materiel.modele,
         materiel.marque,
         materiel.numero_serie,
@@ -125,6 +126,7 @@ router.get('/non_attribue', (req, res) => {
     const sqlGetMateriel = `
       SELECT 
     materiel.ID_materiel,
+    materiel.code,    
     materiel.modele,
     materiel.marque,
     materiel.numero_serie,
@@ -158,10 +160,10 @@ WHERE materiel.attribution = 'non';
 
 router.get('/inventaire', (req, res) => {
     const sqlGetMaterielNonAttribue = `
-      SELECT marque,modele, COUNT(*) AS non_attribue
+      SELECT code,marque, COUNT(*) AS non_attribue
       FROM materiel
       WHERE attribution = 'non'
-      GROUP BY modele
+      GROUP BY code
     `;
 
     db.query(sqlGetMaterielNonAttribue, (error, results) => {

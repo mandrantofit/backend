@@ -84,10 +84,12 @@ router.delete('/:id', (req, res) => {
 router.get('/', (req, res) => {
     const sqlGetAffectation = `
         SELECT a.ID_affectation, a.ID_materiel, a.ID_utilisateur, a.date_affectation, 
-               m.numero_inventaire, m.modele, u.nom AS utilisateur_nom
+               m.numero_inventaire, m.modele, 
+               CONCAT(u.nom, ' - ', s.Nom) AS utilisateur_nom
         FROM affectation a
         JOIN materiel m ON a.ID_materiel = m.ID_materiel
-        JOIN utilisateur u ON a.ID_utilisateur = u.ID_utilisateur;
+        JOIN utilisateur u ON a.ID_utilisateur = u.ID_utilisateur
+        LEFT JOIN service s ON u.ID_service = s.ID_service;
     `;
 
     db.query(sqlGetAffectation, (error, results) => {
@@ -106,15 +108,17 @@ router.get('/', (req, res) => {
     });
 });
 
-// Route GET pour récupérer l'historique des affectations
+
 router.get('/historique', (req, res) => {
     const sqlGetHistorique = `
         SELECT h.ID_historique, h.ID_affectation, h.ID_materiel, h.ID_utilisateur, 
                h.date_affectation, h.date_suppression, 
-               m.numero_inventaire, m.modele, u.nom AS utilisateur_nom
+               m.numero_inventaire, m.modele, 
+               CONCAT(u.nom, ' - ', s.Nom) AS utilisateur_nom
         FROM historique h
         JOIN materiel m ON h.ID_materiel = m.ID_materiel
-        JOIN utilisateur u ON h.ID_utilisateur = u.ID_utilisateur;
+        JOIN utilisateur u ON h.ID_utilisateur = u.ID_utilisateur
+        LEFT JOIN service s ON u.ID_service = s.ID_service;
     `;
 
     db.query(sqlGetHistorique, (error, results) => {
@@ -133,6 +137,7 @@ router.get('/historique', (req, res) => {
         res.status(200).json(formattedResults);
     });
 });
+
 
 
 router.put('/:id', (req, res) => {
