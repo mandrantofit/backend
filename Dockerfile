@@ -21,7 +21,7 @@ WORKDIR /app
 COPY --from=build /app /app
 
 # Exposer le port sur lequel l'application écoute
-EXPOSE 3000
+EXPOSE 8000
 
 # Définir la commande pour démarrer l'application
 CMD ["node", "index.js"]

@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 const db = require('../model/database');
-
+//urre fzde uqvl ovsd  mot de passe d application
 const JWT_SECRET = 'adminplus';
 router.post('/', (req, res) => {
     const { email, password } = req.body;
