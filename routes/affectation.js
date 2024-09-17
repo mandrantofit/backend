@@ -84,13 +84,15 @@ router.delete('/:id', (req, res) => {
 router.get('/', (req, res) => {
     const sqlGetAffectation = `
 SELECT a.ID_affectation, a.ID_materiel, a.ID_utilisateur, a.date_affectation, 
-       m.numero_inventaire, m.modele, 
+       m.numero_inventaire, 
+       CONCAT(m.marque, ' - ', m.modele) AS modele,
        CONCAT(u.nom, ' - ', s.Nom, ' - ', l.lieux) AS utilisateur_nom
 FROM affectation a
 JOIN materiel m ON a.ID_materiel = m.ID_materiel
 JOIN utilisateur u ON a.ID_utilisateur = u.ID_utilisateur
 LEFT JOIN service s ON u.ID_service = s.ID_service
 LEFT JOIN lieux l ON u.ID_lieux = l.ID_lieux;
+
 
     `;
 
@@ -114,14 +116,16 @@ LEFT JOIN lieux l ON u.ID_lieux = l.ID_lieux;
 router.get('/historique', (req, res) => {
     const sqlGetHistorique = `
         SELECT h.ID_historique, h.ID_affectation, h.ID_materiel, h.ID_utilisateur, 
-               h.date_affectation, h.date_suppression, 
-               m.numero_inventaire, m.modele, 
-               CONCAT(u.nom, ' - ', s.Nom, ' - ', l.lieux) AS utilisateur_nom
-        FROM historique h
-        JOIN materiel m ON h.ID_materiel = m.ID_materiel
-        JOIN utilisateur u ON h.ID_utilisateur = u.ID_utilisateur
-        LEFT JOIN service s ON u.ID_service = s.ID_service
-        LEFT JOIN lieux l ON u.ID_lieux = l.ID_lieux;
+       h.date_affectation, h.date_suppression, 
+       m.numero_inventaire, 
+       CONCAT(m.marque, ' - ', m.modele) AS modele,
+       CONCAT(u.nom, ' - ', s.Nom, ' - ', l.lieux) AS utilisateur_nom
+FROM historique h
+JOIN materiel m ON h.ID_materiel = m.ID_materiel
+JOIN utilisateur u ON h.ID_utilisateur = u.ID_utilisateur
+LEFT JOIN service s ON u.ID_service = s.ID_service
+LEFT JOIN lieux l ON u.ID_lieux = l.ID_lieux;
+
     `;
 
     db.query(sqlGetHistorique, (error, results) => {
