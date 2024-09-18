@@ -156,8 +156,6 @@ WHERE materiel.attribution = 'non';
     });
 });
 
-
-
 router.get('/inventaire', (req, res) => {
     const sqlGetMaterielNonAttribue = `
       SELECT code,marque, COUNT(*) AS non_attribue
@@ -173,6 +171,129 @@ router.get('/inventaire', (req, res) => {
         }
 
         res.status(200).json(results);
+    });
+});
+
+router.get('/marque', (req, res) => {
+    const sqlGetMarque = 'SELECT * FROM possibilite_Marque';
+    db.query(sqlGetMarque, (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la récupération des Marques possibile :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+router.post('/marque', (req, res) => {
+    const { marque } = req.body;
+    const sqlCreateMarque = 'INSERT INTO possibilite_Marque (marque) VALUES (?)';
+    db.query(sqlCreateMarque, [marque], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la création de la marque :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(201).json({ message: 'Marque créée avec succès', id: results.insertId });
+    });
+});
+
+router.put('/marque/:id', (req, res) => {
+    const { id } = req.params;
+    const { marque } = req.body;
+    const sqlUpdateMarque = 'UPDATE possibilite_Marque SET marque = ? WHERE ID_marque = ?';
+    db.query(sqlUpdateMarque, [marque, id], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la mise à jour de la marque :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Marque non trouvée' });
+        }
+        res.status(200).json({ message: 'Marque mise à jour avec succès' });
+    });router.delete('/modele/:id', (req, res) => {
+        const { id } = req.params;
+        const sqlDeleteModele = 'DELETE FROM possibilite_Modele WHERE ID_modele = ?';
+        db.query(sqlDeleteModele, [id], (error, results) => {
+            if (error) {
+                console.error('Erreur lors de la suppression du modèle :', error);
+                return res.status(500).json({ error: 'Erreur serveur' });
+            }
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ error: 'Modèle non trouvé' });
+            }
+            res.status(200).json({ message: 'Modèle supprimé avec succès' });
+        });
+    });
+    
+});
+
+router.delete('/marque/:id', (req, res) => {
+    const { id } = req.params;
+    const sqlDeleteMarque = 'DELETE FROM possibilite_Marque WHERE ID_marque = ?';
+    db.query(sqlDeleteMarque, [id], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la suppression de la marque :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Marque non trouvée' });
+        }
+        res.status(200).json({ message: 'Marque supprimée avec succès' });
+    });
+});
+
+
+router.get('/modele', (req, res) => {
+    const sqlGetModele = 'SELECT * FROM possibilite_Modele';
+    db.query(sqlGetModele, (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la récupération des Modèles possibile :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+router.post('/modele', (req, res) => {
+    const { modele } = req.body;
+    const sqlCreateModele = 'INSERT INTO possibilite_Modele (modele) VALUES (?)';
+    db.query(sqlCreateModele, [modele], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la création du modèle :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(201).json({ message: 'Modèle créé avec succès', id: results.insertId });
+    });
+});
+
+router.put('/modele/:id', (req, res) => {
+    const { id } = req.params;
+    const { modele } = req.body;
+    const sqlUpdateModele = 'UPDATE possibilite_Modele SET modele = ? WHERE ID_modele = ?';
+    db.query(sqlUpdateModele, [modele, id], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la mise à jour du modèle :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Modèle non trouvé' });
+        }
+        res.status(200).json({ message: 'Modèle mis à jour avec succès' });
+    });
+});
+
+router.delete('/modele/:id', (req, res) => {
+    const { id } = req.params;
+    const sqlDeleteModele = 'DELETE FROM possibilite_Modele WHERE ID_modele = ?';
+    db.query(sqlDeleteModele, [id], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la suppression du modèle :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Modèle non trouvé' });
+        }
+        res.status(200).json({ message: 'Modèle supprimé avec succès' });
     });
 });
 
