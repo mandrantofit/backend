@@ -21,6 +21,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install netcat
+        run: sudo apt-get install -y netcat
+
+      - name: Test server connectivity
+        run: |
+          nc -zv 172.25.52.205 22
+
       - name: Check SSH Key
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/private_key
