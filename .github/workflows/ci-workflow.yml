@@ -1,0 +1,42 @@
+name: CI Workflow
+
+# Déclenche le workflow uniquement sur les événements push et pull request vers la branche test
+on:
+  push:
+    branches: 
+      - test
+  pull_request:
+    branches:
+      - test
+
+# Définit les jobs à exécuter
+jobs:
+  build:
+
+    # Spécifie le système d'exploitation (Ubuntu 21.04)
+    runs-on: ubuntu-21.04
+
+    steps:
+      # Vérifie le dépôt
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Configure Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.17.0'
+
+      # Installe les dépendances
+      - name: Install dependencies
+        run: npm install
+
+      # Exécute les tests
+      - name: Run tests
+        run: npm run test
+        # Assurez-vous que le script 'test' est défini dans votre package.json
+
+      # Crée une build de production (facultatif)
+      - name: Build project
+        run: npm run build
+        # Assurez-vous que le script 'build' est défini dans votre package.json
