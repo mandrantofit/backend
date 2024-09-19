@@ -9,6 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -27,13 +30,11 @@ jobs:
           chmod 600 /tmp/private_key
           # Test SSH connection
           ssh -i /tmp/private_key -o StrictHostKeyChecking=no cpadmin@172.25.52.205 "echo SSH key works" || exit 1
-          
+
       - name: Install scp
         run: sudo apt-get install -y openssh-client
 
       - name: Deploy to Server
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           # Sync files to the server using scp
           scp -i /tmp/private_key -o StrictHostKeyChecking=no -r ./ cpadmin@172.25.52.205:/home/cpadmin/app/
