@@ -9,9 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,8 +25,10 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/private_key
           chmod 600 /tmp/private_key
-          # Test SSH connection
-          ssh -i /tmp/private_key -o StrictHostKeyChecking=no cpadmin@172.25.52.205 "echo SSH key works" || exit 1
+          # Test SSH connection with verbose logging
+          ssh -i /tmp/private_key -o StrictHostKeyChecking=no -v cpadmin@172.25.52.205 "echo SSH key works" || exit 1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Install scp
         run: sudo apt-get install -y openssh-client
@@ -52,3 +51,5 @@ jobs:
               echo "ecosystem.config.js not found, skipping PM2 start."
             fi
           EOF
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
