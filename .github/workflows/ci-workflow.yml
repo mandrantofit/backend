@@ -1,0 +1,53 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.17.0'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check SSH Key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > /tmp/private_key
+          chmod 600 /tmp/private_key
+          # Test SSH connection
+          ssh -i /tmp/private_key -o StrictHostKeyChecking=no cpadmin@172.25.52.205 "echo SSH key works" || exit 1
+          
+      - name: Install scp
+        run: sudo apt-get install -y openssh-client
+
+      - name: Deploy to Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Sync files to the server using scp
+          scp -i /tmp/private_key -o StrictHostKeyChecking=no -r ./ cpadmin@172.25.52.205:/home/cpadmin/app/
+
+          # SSH into the server and restart the app using PM2
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key cpadmin@172.25.52.205 << 'EOF'
+            cd /home/cpadmin/app
+            npm install
+            
+            # Check if ecosystem.config.js exists
+            if [ -f ecosystem.config.js ]; then
+              pm2 restart ecosystem.config.js --watch || pm2 start ecosystem.config.js
+              pm2 save
+            else
+              echo "ecosystem.config.js not found, skipping PM2 start."
+            fi
+          EOF
