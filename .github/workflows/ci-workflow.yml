@@ -13,50 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          node-version: '20.17.0'
+          username: mandrantofit
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install netcat
-        run: sudo apt-get install -y netcat
-
-      - name: Test server connectivity
+      - name: Build Docker image
         run: |
-          nc -zv 172.25.55.232 22  # Mettre à jour avec la nouvelle IP
+          docker build -t mandrantofit/devstock-backend:latest .
 
-      - name: Check SSH Key
+      - name: Push Docker image
         run: |
-          echo "$SSH_PRIVATE_KEY" > /tmp/private_key
-          chmod 600 /tmp/private_key
-          # Test SSH connection with verbose logging
-          ssh -i /tmp/private_key -o StrictHostKeyChecking=no -v mandrantofit@172.25.55.232 "echo SSH key works" || exit 1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Install scp
-        run: sudo apt-get install -y openssh-client
-
-      - name: Deploy to Server
-        run: |
-          # Sync files to the server using scp
-          scp -i /tmp/private_key -o StrictHostKeyChecking=no -r ./ mandrantofit@172.25.55.232:/home/mandrantofit/app/
-
-          # SSH into the server and restart the app using PM2
-          ssh -o StrictHostKeyChecking=no -i /tmp/private_key mandrantofit@172.25.55.232 << 'EOF'
-            cd /home/mandrantofit/app
-            npm install
-            
-            # Check if ecosystem.config.js exists
-            if [ -f ecosystem.config.js ]; then
-              pm2 restart ecosystem.config.js --watch || pm2 start ecosystem.config.js
-              pm2 save
-            else
-              echo "ecosystem.config.js not found, skipping PM2 start."
-            fi
-          EOF
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          docker push mandrantofit/devstock-backend:latest
