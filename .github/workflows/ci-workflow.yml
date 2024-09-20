@@ -40,4 +40,4 @@ jobs:
 
       - name: View logs
         run: |
-          docker logs devstock-backend-container
+          docker logs devstock-backend-container || true
