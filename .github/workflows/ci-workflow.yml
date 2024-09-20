@@ -26,14 +26,14 @@ jobs:
 
       - name: Test server connectivity
         run: |
-          nc -zv 192.168.150.148 22  # Mettre à jour avec la nouvelle IP
+          nc -zv 172.25.55.232 22  # Mettre à jour avec la nouvelle IP
 
       - name: Check SSH Key
         run: |
           echo "$SSH_PRIVATE_KEY" > /tmp/private_key
           chmod 600 /tmp/private_key
           # Test SSH connection with verbose logging
-          ssh -i /tmp/private_key -o StrictHostKeyChecking=no -v mandrantofit@192.168.150.148 "echo SSH key works" || exit 1
+          ssh -i /tmp/private_key -o StrictHostKeyChecking=no -v mandrantofit@172.25.55.232 "echo SSH key works" || exit 1
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -43,10 +43,10 @@ jobs:
       - name: Deploy to Server
         run: |
           # Sync files to the server using scp
-          scp -i /tmp/private_key -o StrictHostKeyChecking=no -r ./ mandrantofit@192.168.150.148:/home/mandrantofit/app/
+          scp -i /tmp/private_key -o StrictHostKeyChecking=no -r ./ mandrantofit@172.25.55.232:/home/mandrantofit/app/
 
           # SSH into the server and restart the app using PM2
-          ssh -o StrictHostKeyChecking=no -i /tmp/private_key mandrantofit@192.168.150.148 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i /tmp/private_key mandrantofit@172.25.55.232 << 'EOF'
             cd /home/mandrantofit/app
             npm install
             
