@@ -29,3 +29,15 @@ jobs:
       - name: Push Docker image
         run: |
           docker push mandrantofit/devstock-backend:latest
+
+      - name: Pull Docker image to local machine
+        run: |
+          docker pull mandrantofit/devstock-backend:latest
+
+      - name: Run Docker container
+        run: |
+          docker run --name devstock-backend-container -d -p 8000:8000 mandrantofit/devstock-backend:latest
+
+      - name: View logs
+        run: |
+          docker logs devstock-backend-container
