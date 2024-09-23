@@ -25,6 +25,6 @@ jobs:
         run: |
           ssh cpadmin@172.25.52.205 'cd ~/webapp && git clone git@github.com:mandrantofit/backend.git || (cd ~/webapp/backend && git pull)'
         
-      - name: Install dependencies and run backend
+      - name: Install dependencies and run back-end
         run: |
           ssh cpadmin@172.25.52.205 'cd ~/webapp/backend && npm install && pm2 restart all || pm2 start app.js --name devstock-backend'
