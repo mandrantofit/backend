@@ -10,7 +10,7 @@ module.exports = {
         NODE_ENV: 'development',    // Environnement de développement
       },
       env_production: {
-        NODE_ENV: 'production',     // Environnement de production
+        NODE_ENV: 'production',     // Environnement de prod
       },
     },
   ],
